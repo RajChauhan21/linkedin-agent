@@ -19,8 +19,7 @@ public class LinkedInAgentSchedulerService {
     private ImageGenerationTools imageGenerationTools;
 
 
-    // Runs every 1 minute
-    @Scheduled(fixedRate = 300000) // 60000 milliseconds = 1 minute
+    @Scheduled(cron = "0 0 9 * * *") // 9 AM daily
     public void scheduledImageGeneration() {
         log.info("Starting scheduled image generation at: {}", System.currentTimeMillis());
 
