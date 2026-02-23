@@ -1,4 +1,4 @@
-# LinkedIn Agent - Automated LinkedIn Content Generator
+[deepseek_text_20260223_127f2e.txt](https://github.com/user-attachments/files/25495634/deepseek_text_20260223_127f2e.txt)# LinkedIn Agent - Automated LinkedIn Content Generator
 
 # 📋Overview
 LinkedIn Agent is an automated Spring Boot application that generates and posts engaging technical content to LinkedIn daily. The application fetches the latest technology news, creates AI-generated images, and publishes professional posts with relevant hashtags.
@@ -15,6 +15,7 @@ LinkedIn Integration: Automatically posts to LinkedIn using official LinkedIn De
 Smart Content Selection: Intelligently selects the most relevant tech news for posting
 
 # 🏗️ Architecture
+
 ┌─────────────┐    ┌──────────────┐    ┌─────────────────┐
 │   News API  │───▶│  News Fetcher│───▶│ Content Selector│
 └─────────────┘    └──────────────┘    └────────┬────────┘
