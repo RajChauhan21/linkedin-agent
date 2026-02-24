@@ -19,7 +19,7 @@ public class LinkedInAgentSchedulerService {
     private ImageGenerationTools imageGenerationTools;
 
 
-    @Scheduled(cron = "0 0 9 * * *") // 9 AM daily
+    @Scheduled(cron = "0 0 9 * * *", zone = "Asia/Kolkata") // 9 AM daily
     public void scheduledImageGeneration() {
         log.info("Starting scheduled image generation at: {}", System.currentTimeMillis());
 
