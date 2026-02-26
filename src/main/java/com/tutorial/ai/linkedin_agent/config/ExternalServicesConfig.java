@@ -5,7 +5,6 @@ import com.google.genai.Client;
 import com.tutorial.ai.linkedin_agent.external.CloudFlareImageGenerator;
 import com.tutorial.ai.linkedin_agent.external.LinkedInImageRegister;
 import com.tutorial.ai.linkedin_agent.external.NewsDataExternalApi;
-import com.tutorial.ai.linkedin_agent.external.PollinationsImageGenerator;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -14,7 +13,6 @@ import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.Resource;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -54,21 +52,6 @@ public class ExternalServicesConfig {
                 .build();
     }
 
-    @Bean
-    public WebClient pollinationsWebClient(){
-        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
-                .codecs(a->a.defaultCodecs().maxInMemorySize(40*1024*1024))
-                .build();
-        return WebClient.builder()
-                .defaultHeader("Authorization", "Bearer "+googleApiKey)
-                .exchangeStrategies(exchangeStrategies)
-                .build();
-    }
-    @Bean
-    public PollinationsImageGenerator pollinationsImageGenerator(){
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(pollinationsWebClient())).build();
-        return factory.createClient(PollinationsImageGenerator.class);
-    }
 
     @Bean
     public CloudFlareImageGenerator imageService(){

@@ -33,9 +33,6 @@ public class AgentController {
     @Autowired
     private GoogleImageGenService imageGenService;
 
-    @Autowired
-    private PollinationsImageService pollinationsImageService;
-
 
     @PostMapping("/call")
     public Flux<String> generateImageFromAI(@RequestBody String prompt) {
@@ -49,11 +46,6 @@ public class AgentController {
     @GetMapping("/latest")
     public ResponseEntity<?> getLatestNews(@RequestParam("q") String p) {
         return new ResponseEntity<>(externalService.getResponse(p), HttpStatus.ACCEPTED);
-    }
-
-    @GetMapping("/polli-img")
-    public ResponseEntity<?> pollinationImage(@RequestParam("q") String p) {
-        return new ResponseEntity<>(pollinationsImageService.generateImageFromPollination(p), HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/gen-img")
