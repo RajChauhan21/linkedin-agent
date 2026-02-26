@@ -1,8 +1,6 @@
 package com.tutorial.ai.linkedin_agent.controller;
 
-import com.tutorial.ai.linkedin_agent.service.CloudFlareImageService;
-import com.tutorial.ai.linkedin_agent.service.LinkedInImageUploadService;
-import com.tutorial.ai.linkedin_agent.service.NewsDataService;
+import com.tutorial.ai.linkedin_agent.service.*;
 import com.tutorial.ai.linkedin_agent.tools.ImageGenerationTools;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +30,12 @@ public class AgentController {
     @Autowired
     private LinkedInImageUploadService linkedInImageUploadService;
 
+    @Autowired
+    private GoogleImageGenService imageGenService;
+
+    @Autowired
+    private PollinationsImageService pollinationsImageService;
+
 
     @PostMapping("/call")
     public Flux<String> generateImageFromAI(@RequestBody String prompt) {
@@ -45,6 +49,16 @@ public class AgentController {
     @GetMapping("/latest")
     public ResponseEntity<?> getLatestNews(@RequestParam("q") String p) {
         return new ResponseEntity<>(externalService.getResponse(p), HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/polli-img")
+    public ResponseEntity<?> pollinationImage(@RequestParam("q") String p) {
+        return new ResponseEntity<>(pollinationsImageService.generateImageFromPollination(p), HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/gen-img")
+    public ResponseEntity<?> generateImage(@RequestParam("q") String p) throws IOException {
+        return new ResponseEntity<>(imageGenService.generateImageUsingGoogleVertex(p), HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/register")

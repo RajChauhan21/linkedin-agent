@@ -23,22 +23,28 @@ public class CloudFlareImageService {
     private LinkedInImageUploadService linkedInImageUploadService;
 
     @Value("${app.upload.dir}")
-    private String uploadDir;
+    private String uploadDirectory;
 
     public String getImage(String request) throws IOException {
 
-        try{
+        try {
             String refinedPrompt = cleanPrompt(request);
             ImagePrompt prompt = new ImagePrompt(refinedPrompt);
             byte[] bytes = imageService.generateImage(prompt);
-            String fileName = "image" + System.currentTimeMillis() + ".jpg";
-            if (bytes.length != 0){
+            String fileName = "cloudf" + System.currentTimeMillis() + ".jpg";
+
+            Path uploadDir = Path.of(uploadDirectory);
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+            Path filePath = uploadDir.resolve(fileName);
+            Files.write(filePath, bytes);
+            if (bytes.length != 0) {
                 System.out.println(" linkedin api accessed");
-                linkedInImageUploadService.registerImageOnLinkedIn(bytes);
+//                linkedInImageUploadService.registerImageOnLinkedIn(bytes);
             }
             return fileName;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return e.toString();
         }
     }

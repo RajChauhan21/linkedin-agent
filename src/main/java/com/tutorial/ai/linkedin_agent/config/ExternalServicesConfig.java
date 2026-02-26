@@ -1,25 +1,45 @@
 package com.tutorial.ai.linkedin_agent.config;
 
+//import com.google.genai.Client;
+import com.google.genai.Client;
 import com.tutorial.ai.linkedin_agent.external.CloudFlareImageGenerator;
 import com.tutorial.ai.linkedin_agent.external.LinkedInImageRegister;
 import com.tutorial.ai.linkedin_agent.external.NewsDataExternalApi;
+import com.tutorial.ai.linkedin_agent.external.PollinationsImageGenerator;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.Resource;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
+import static org.springframework.ai.chat.client.ChatClient.builder;
+
 @Configuration
 public class ExternalServicesConfig {
 
     @Value("classpath:/system-prompt-gem.txt")
     private Resource systemPrompt;
+
+    @Value("${spring.ai.openai.base-url}")
+    private String openAiBaseUrl;
+
+    @Value("${spring.ai.openai.api-key}")
+    private String openAiApiKey;
+
+    @Value("${google.api.key}")
+    private String googleApiKey;
+
+    @Value("${cloud.flare.api}")
+    private String cloudFlareApiKey;
 
     @Bean
     public WebClient cloudFlareImageClient(){
@@ -28,10 +48,26 @@ public class ExternalServicesConfig {
                 .build();
 
         return WebClient.builder()
-                .defaultHeader("Authorization", "Bearer 9321834217")
+                .defaultHeader("Authorization", "Bearer "+cloudFlareApiKey)
                 .defaultHeader("Content-type","application/json")
                 .exchangeStrategies(exchangeStrategies)
                 .build();
+    }
+
+    @Bean
+    public WebClient pollinationsWebClient(){
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
+                .codecs(a->a.defaultCodecs().maxInMemorySize(40*1024*1024))
+                .build();
+        return WebClient.builder()
+                .defaultHeader("Authorization", "Bearer "+googleApiKey)
+                .exchangeStrategies(exchangeStrategies)
+                .build();
+    }
+    @Bean
+    public PollinationsImageGenerator pollinationsImageGenerator(){
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(pollinationsWebClient())).build();
+        return factory.createClient(PollinationsImageGenerator.class);
     }
 
     @Bean
@@ -53,10 +89,30 @@ public class ExternalServicesConfig {
     }
 
     @Bean
-    public ChatClient chatClient(ChatClient.Builder builder){
-        return builder.defaultAdvisors(new SimpleLoggerAdvisor())
+    OpenAiApi openAiApi(){
+        return OpenAiApi.builder()
+                .apiKey("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")
+                .baseUrl("https://api.groq.com/openai")
+                .build();
+    }
+
+    @Bean
+    OpenAiChatModel openAiChatModel(){
+        return OpenAiChatModel.builder()
+                .openAiApi(openAiApi())
+                .build();
+    }
+
+    @Bean
+    public ChatClient chatClient(){
+        return ChatClient.builder(openAiChatModel())
+                .defaultAdvisors(new SimpleLoggerAdvisor())
                 .defaultOptions(OpenAiChatOptions.builder()
-                        .temperature(0.0)
+//                        .model("meta-llama/llama-4-scout-17b-16e-instruct")
+                                .model("openai/gpt-oss-120b")
+//                        .model("nvidia/nemotron-3-nano-30b-a3b:free")
+                        .temperature(0.0d)
+                        .maxTokens(4500)
                         .build())
                 .defaultSystem(systemPrompt)
                 .build();
@@ -72,5 +128,14 @@ public class ExternalServicesConfig {
     public LinkedInImageRegister linkedInImageRegister(){
         HttpServiceProxyFactory serviceProxyFactory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(linkedInWebClient())).build();
         return serviceProxyFactory.createClient(LinkedInImageRegister.class);
+    }
+
+
+    @Bean
+    public Client genAiClient(){
+        return Client.builder()
+                .apiKey("AQ.Ab8RN6L4DK9fhJLJZCLEHzryN56Zxwfk0EG13Vm6MRfdF-lvKg")
+                .vertexAI(true)
+                .build();
     }
 }

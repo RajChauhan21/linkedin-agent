@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tutorial.ai.linkedin_agent.dto.News;
 import com.tutorial.ai.linkedin_agent.dto.SaveDataRequest;
 import com.tutorial.ai.linkedin_agent.service.CloudFlareImageService;
+import com.tutorial.ai.linkedin_agent.service.GoogleImageGenService;
 import com.tutorial.ai.linkedin_agent.service.LinkedInImageUploadService;
 import com.tutorial.ai.linkedin_agent.service.NewsDataService;
 import org.springframework.ai.tool.annotation.Tool;
@@ -27,6 +28,9 @@ public class ImageGenerationTools {
     @Autowired
     private LinkedInImageUploadService linkedInImageUploadService;
 
+    @Autowired
+    private GoogleImageGenService googleImageGenService;
+
     @Tool(name = "image-generator",description = """
             Generate a high-quality image based on a detailed prompt.
                     INPUT: A string containing the image description prompt.
@@ -35,7 +39,8 @@ public class ImageGenerationTools {
         try {
             System.out.println(prompt);
             System.out.println("tool called");
-            return imageService.getImage(prompt);
+//            return imageService.getImage(prompt);
+            return googleImageGenService.generateImageUsingGoogleVertex(prompt);
         } catch (IOException e) {
             return "failed to generate image";
         }
@@ -76,9 +81,10 @@ public class ImageGenerationTools {
             System.out.println("✅ Successfully received data:");
             System.out.println("   - Image: " + imageFileName);
             System.out.println("   - News: " + news.getTitle());
+            System.out.println("   - Desc: " + news.getDescription());
 
-            postOnLinkedIn(news);
-
+//            postOnLinkedIn(news);
+            System.out.println(news);
             // Clear success message with summary
             return String.format(
                     "SUCCESS: Data saved! Title: '%s', Description: '%s', Image: %s",
