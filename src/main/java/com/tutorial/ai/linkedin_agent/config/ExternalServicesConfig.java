@@ -91,8 +91,8 @@ public class ExternalServicesConfig {
     @Bean
     OpenAiApi openAiApi(){
         return OpenAiApi.builder()
-                .apiKey("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")
-                .baseUrl("https://api.groq.com/openai")
+                .apiKey(openAiApiKey)
+                .baseUrl(openAiBaseUrl)
                 .build();
     }
 
@@ -134,7 +134,7 @@ public class ExternalServicesConfig {
     @Bean
     public Client genAiClient(){
         return Client.builder()
-                .apiKey("AQ.Ab8RN6L4DK9fhJLJZCLEHzryN56Zxwfk0EG13Vm6MRfdF-lvKg")
+                .apiKey(googleApiKey)
                 .vertexAI(true)
                 .build();
     }

@@ -83,7 +83,7 @@ public class ImageGenerationTools {
             System.out.println("   - News: " + news.getTitle());
             System.out.println("   - Desc: " + news.getDescription());
 
-//            postOnLinkedIn(news);
+            postOnLinkedIn(news);
             System.out.println(news);
             // Clear success message with summary
             return String.format(
