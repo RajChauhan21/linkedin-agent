@@ -21,6 +21,9 @@ public class GoogleImageGenService {
     @Value("${app.upload.dir}")
     private String directory;
 
+    @Autowired
+    private LinkedInImageUploadService linkedInImageUploadService;
+
     public String generateImageUsingGoogleVertex(String prompt) throws IOException {
         GenerateImagesConfig config = GenerateImagesConfig.builder()
                 .addWatermark(true)
@@ -45,6 +48,9 @@ public class GoogleImageGenService {
         Path filePath = uploadDir.resolve(filename);
 
         Files.write(filePath, generatedImage.imageBytes().get());
-         return "Image generated successfully";
+        if (generatedImage.imageBytes().isPresent()){
+            linkedInImageUploadService.registerImageOnLinkedIn( generatedImage.imageBytes().get());
+        }
+         return filename;
     }
 }

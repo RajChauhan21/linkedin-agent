@@ -1,6 +1,5 @@
 package com.tutorial.ai.linkedin_agent.config;
 
-//import com.google.genai.Client;
 import com.google.genai.Client;
 import com.tutorial.ai.linkedin_agent.external.CloudFlareImageGenerator;
 import com.tutorial.ai.linkedin_agent.external.LinkedInImageRegister;
@@ -95,7 +94,6 @@ public class ExternalServicesConfig {
                                 .model("openai/gpt-oss-120b")
 //                        .model("nvidia/nemotron-3-nano-30b-a3b:free")
                         .temperature(0.0d)
-                        .maxTokens(4500)
                         .build())
                 .defaultSystem(systemPrompt)
                 .build();

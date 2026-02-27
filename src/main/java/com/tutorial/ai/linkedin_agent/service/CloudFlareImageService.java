@@ -41,7 +41,7 @@ public class CloudFlareImageService {
             Files.write(filePath, bytes);
             if (bytes.length != 0) {
                 System.out.println(" linkedin api accessed");
-//                linkedInImageUploadService.registerImageOnLinkedIn(bytes);
+                linkedInImageUploadService.registerImageOnLinkedIn(bytes);
             }
             return fileName;
         } catch (Exception e) {
