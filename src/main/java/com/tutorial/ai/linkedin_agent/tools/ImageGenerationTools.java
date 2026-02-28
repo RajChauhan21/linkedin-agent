@@ -39,8 +39,8 @@ public class ImageGenerationTools {
         try {
             System.out.println(prompt);
             System.out.println("tool called");
-//            return imageService.getImage(prompt);
-            return googleImageGenService.generateImageUsingGoogleVertex(prompt);
+            return imageService.getImage(prompt);
+//            return googleImageGenService.generateImageUsingGoogleVertex(prompt);
         } catch (IOException e) {
             return "failed to generate image";
         }
