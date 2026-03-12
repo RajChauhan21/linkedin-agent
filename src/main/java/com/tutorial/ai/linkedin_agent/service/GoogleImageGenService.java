@@ -6,6 +6,7 @@ import com.google.genai.types.GenerateImagesResponse;
 import com.google.genai.types.Image;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,6 +23,9 @@ public class GoogleImageGenService {
     private String directory;
 
     @Autowired
+    private RetryTemplate retryTemplate;
+
+    @Autowired
     private LinkedInImageUploadService linkedInImageUploadService;
 
     public String generateImageUsingGoogleVertex(String prompt) throws IOException {
@@ -32,10 +36,11 @@ public class GoogleImageGenService {
                 .includeSafetyAttributes(true)
                 .build();
 
-        GenerateImagesResponse response = client.models.generateImages( "imagen-3.0-generate-002", prompt, config);
+        GenerateImagesResponse response = retryTemplate.execute(context -> client.models.generateImages( "imagen-3.0-generate-002", prompt, config));
 
         if (response.images().isEmpty()) {
             System.out.println("Unable to generate images.");
+            return "";
         }
         System.out.println("Generated " + response.images().size() + " images.");
         Image generatedImage = response.images().get(0);

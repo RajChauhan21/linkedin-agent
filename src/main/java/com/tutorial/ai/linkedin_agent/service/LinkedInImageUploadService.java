@@ -4,6 +4,7 @@ import com.tutorial.ai.linkedin_agent.dto.News;
 import com.tutorial.ai.linkedin_agent.external.LinkedInImageRegister;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -26,6 +27,9 @@ public class LinkedInImageUploadService {
     private String oauthToken;
 
     @Autowired
+    private RetryTemplate retryTemplate;
+
+    @Autowired
     private LinkedInImageRegister linkedInImageRegister;
 
     private String assetUrn;
@@ -42,7 +46,7 @@ public class LinkedInImageUploadService {
                 )
         );
 
-        Map<String, Object> response = linkedInImageRegister.registerImage(requestBody, oauthToken);
+        Map<String, Object> response = retryTemplate.execute(context -> linkedInImageRegister.registerImage(requestBody, oauthToken));
         Map<String, Object> value = (Map<String, Object>) response.get("value");
          assetUrn = (String) value.get("asset");
 
@@ -53,7 +57,7 @@ public class LinkedInImageUploadService {
 
         try{
 //            byte[] imageAsBytes = getImageAsBytes(filename);
-            linkedInImageRegister.uploadImage(uploadUri, "Bearer "+oauthToken,"application/octet-stream",bytes);
+            linkedInImageRegister.uploadImage(uploadUri, "Bearer " + oauthToken, "application/octet-stream", bytes);
 //            postImageOnLinkedIn("Feeling inspired after meeting so many talented individuals at this year's conference. #talentconnect");
             System.out.println("image uploaded successfully");
         } catch (Exception e) {

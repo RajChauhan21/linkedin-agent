@@ -16,7 +16,7 @@ public interface LinkedInImageRegister {
     Map<String,Object> registerImage(@RequestBody Map<String,Object> body, @RequestParam("oauth2_access_token") String token);
 
     @PostExchange
-    void uploadImage(URI uploadUrl, @RequestHeader("Authorization") String header, @RequestHeader("Content-type") String contentType, @RequestBody byte[] binaryImageFile);
+    void uploadImage(URI uploadUrl, @RequestHeader("Authorization") String header, @RequestHeader("Content-Type") String contentType, @RequestBody byte[] binaryImageFile);
 
     @PostExchange("/ugcPosts")
     void postImage(@RequestHeader("Authorization") String header,  @RequestHeader("X-Restli-Protocol-Version") String restliVersion, @RequestBody Map<String,Object> body);

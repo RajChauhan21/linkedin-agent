@@ -4,6 +4,7 @@ import com.google.genai.Client;
 import com.tutorial.ai.linkedin_agent.external.CloudFlareImageGenerator;
 import com.tutorial.ai.linkedin_agent.external.LinkedInImageRegister;
 import com.tutorial.ai.linkedin_agent.external.NewsDataExternalApi;
+import io.netty.channel.ChannelOption;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -13,10 +14,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+import reactor.netty.http.client.HttpClient;
+
+import java.time.Duration;
 
 import static org.springframework.ai.chat.client.ChatClient.builder;
 
@@ -39,6 +45,14 @@ public class ExternalServicesConfig {
     private String cloudFlareApiKey;
 
     @Bean
+    public HttpClient httpClient(){
+        return HttpClient.create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,20000)
+                .responseTimeout(Duration.ofSeconds(45))
+                .compress(true);
+    }
+
+    @Bean
     public WebClient cloudFlareImageClient(){
         ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
                 .codecs(a->a.defaultCodecs().maxInMemorySize(10*1024*1024))
@@ -48,6 +62,7 @@ public class ExternalServicesConfig {
                 .defaultHeader("Authorization", "Bearer "+cloudFlareApiKey)
                 .defaultHeader("Content-type","application/json")
                 .exchangeStrategies(exchangeStrategies)
+                .clientConnector(new ReactorClientHttpConnector(httpClient()))
                 .build();
     }
 
@@ -61,6 +76,7 @@ public class ExternalServicesConfig {
     @Bean
     public WebClient newsDataWebClient(){
         return WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient()))
                 .build();
     }
 
@@ -102,6 +118,7 @@ public class ExternalServicesConfig {
     @Bean
     public WebClient linkedInWebClient(){
         return WebClient.builder().baseUrl("https://api.linkedin.com/")
+                .clientConnector(new ReactorClientHttpConnector(httpClient()))
                 .build();
     }
 
@@ -117,6 +134,14 @@ public class ExternalServicesConfig {
         return Client.builder()
                 .apiKey(googleApiKey)
                 .vertexAI(true)
+                .build();
+    }
+
+    @Bean
+    public RetryTemplate retryTemplate(){
+        return RetryTemplate.builder()
+                .maxAttempts(3)
+                .fixedBackoff(2000)
                 .build();
     }
 }

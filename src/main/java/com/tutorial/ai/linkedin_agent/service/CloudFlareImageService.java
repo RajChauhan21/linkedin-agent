@@ -6,6 +6,7 @@ import com.tutorial.ai.linkedin_agent.dto.ImagePrompt;
 import com.tutorial.ai.linkedin_agent.external.CloudFlareImageGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -25,12 +26,15 @@ public class CloudFlareImageService {
     @Value("${app.upload.dir}")
     private String uploadDirectory;
 
+    @Autowired
+    private RetryTemplate retryTemplate;
+
     public String getImage(String request) throws IOException {
 
         try {
             String refinedPrompt = cleanPrompt(request);
             ImagePrompt prompt = new ImagePrompt(refinedPrompt);
-            byte[] bytes = imageService.generateImage(prompt);
+            byte[] bytes = retryTemplate.execute(context -> imageService.generateImage(prompt));
             String fileName = "cloudf" + System.currentTimeMillis() + ".jpg";
 
             Path uploadDir = Path.of(uploadDirectory);
